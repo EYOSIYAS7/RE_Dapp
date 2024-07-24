@@ -15,11 +15,13 @@ contract Escrow {
     address payable public seller;
     address public lender;
     address public inspector;
-    // because we need to sepcify for a specific nft
+    // because we need to sepcify this property for a specific nft
     mapping (uint256 => bool) public isListed;
     mapping (uint256 => uint256) public purchasePrice;
     mapping (uint256 => uint256) public escrowAmount;
     mapping (uint256 => address) public buyer;
+    mapping (uint256 => bool) public inspectionStatus;
+    mapping (uint256 => mapping(address => bool)) public approval;
     constructor(address _nftAddress, address payable _seller, address _lender, address _inspector){
         nftAddress = _nftAddress;
         seller = _seller;
@@ -27,11 +29,24 @@ contract Escrow {
         inspector = _inspector;
         
         ierc721 = IERC721(_nftAddress);
-
+    }
+    modifier onlyseller() {
+        require(msg.sender == seller, "Only seller can call this function");
+        _;
+    }
+    modifier onlyBuyer(uint256 nftID) {
+        require(msg.sender == buyer[nftID], "Only buyer can call this function");
+        _;
     }
 
-    function ListProperty(uint256 _nftID, uint256 _purchasePrice, uint256 _EscrowAmont, address _buyer) public{
+    modifier onlyInspector(uint256 nftID) {
+        require(msg.sender == inspector , "only inspector can call this function");
+        _;
+    }
+
+    function ListProperty(uint256 _nftID, uint256 _purchasePrice, uint256 _EscrowAmont, address _buyer) public payable onlyseller(){
         // transfer the ownership to escrow address
+        // Erc721 method used
         ierc721.transferFrom(msg.sender, address(this), _nftID);
         isListed[_nftID] = true;
         purchasePrice[_nftID] = _purchasePrice;
@@ -39,4 +54,45 @@ contract Escrow {
         buyer[_nftID] = _buyer;
     }
 
+    function depositeEarnest(uint256 _nftID) public payable onlyBuyer(_nftID){
+        require(msg.value ==  escrowAmount[_nftID]);
+    }
+
+    receive() external payable{
+    
+    }
+
+    function getBalance() public view returns(uint256){
+        return address(this).balance;
+    }
+
+    function updateInspectionSatuts(uint256 _nftID) public {
+        inspectionStatus[_nftID] = true;
+    }
+     function updateApprovalSatuts(uint256 _nftID) public {
+        approval[_nftID][msg.sender] = true;
+    }
+
+    function FinalizeSale (uint256 _nftID) public  {
+        require(inspectionStatus[_nftID]);
+        require(approval[_nftID][seller]);
+        require(approval[_nftID][buyer[_nftID]]);
+        require(approval[_nftID][lender]);
+        require(address(this).balance >= purchasePrice[_nftID], "not sufficient fund");
+        // transfer the fund to the seller
+       (bool success, ) = payable(seller).call{value : address(this).balance}(" ");
+        require(success, "Didn't transfer the fund to the seller");
+        // move the ownership of the nft to the buyer
+        ierc721.transferFrom(address(this),buyer[_nftID] , _nftID);
+
+        isListed[_nftID] = false;
+    }
+
+    function cancelTransaction(uint256 _nftID) public {
+        if(inspectionStatus[_nftID] == false) {
+            payable(buyer[_nftID]).transfer(address(this).balance);
+        }else {
+             payable(seller).transfer(address(this).balance);
+        }
+    } 
 }
