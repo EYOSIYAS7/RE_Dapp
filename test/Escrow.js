@@ -38,7 +38,7 @@ describe("Escrow", () => {
 
     transaction = await escrow
       .connect(seller)
-      .ListProperty(1, tokens(100), tokens(10), buyer.address);
+      .ListProperty(1, tokens(10), tokens(5), buyer.address);
     await transaction.wait();
   });
   describe("Deployment", () => {
@@ -75,11 +75,11 @@ describe("Escrow", () => {
     });
     it("update the purchasePrice of the nft", async () => {
       const result = await escrow.purchasePrice(1);
-      expect(result).to.be.equal(tokens(100));
+      expect(result).to.be.equal(tokens(10));
     });
     it("update the escrowAmount of the nft", async () => {
       const result = await escrow.escrowAmount(1);
-      expect(result).to.be.equal(tokens(10));
+      expect(result).to.be.equal(tokens(5));
     });
     // the buyer function is actually a mapping in the contract
     it("update the buyer of the nft", async () => {
@@ -92,12 +92,12 @@ describe("Escrow", () => {
     it("Deposit Earnset to Escrow balance", async () => {
       let transaction = await escrow
         .connect(buyer)
-        .depositeEarnest(1, { value: tokens(10) });
+        .depositeEarnest(1, { value: tokens(5) });
       await transaction.wait();
 
       const result = await escrow.getBalance();
 
-      expect(result).to.be.equal(tokens(10));
+      expect(result).to.be.equal(tokens(5));
     });
 
     it("updates the inspection status", async () => {
@@ -137,7 +137,7 @@ describe("Escrow", () => {
       await transaction.wait();
       transaction = await escrow
         .connect(buyer)
-        .depositeEarnest(1, { value: tokens(10) });
+        .depositeEarnest(1, { value: tokens(5) });
       await transaction.wait();
       // this how the lender deposits the remaining fund
       await lender.sendTransaction({ to: escrow.address, value: tokens(90) });
