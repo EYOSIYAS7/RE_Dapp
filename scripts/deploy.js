@@ -8,9 +8,11 @@ const hre = require("hardhat");
 
 async function main() {
   const tokens = (n) => {
+    // check if it is a big number or not??
     return ethers.utils.parseUnits(n.toString(), "ether");
   };
-  [seller, buyer, lender, inspector] = await ethers.getSigners();
+  [buyer, seller, inspector, lender] = await ethers.getSigners();
+  console.log(seller, buyer, lender, inspector);
 
   const RealEstate = await ethers.getContractFactory("RealEstateNFT");
   const realEstate = await RealEstate.deploy();

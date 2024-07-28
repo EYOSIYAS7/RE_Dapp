@@ -54,8 +54,9 @@ contract Escrow {
         buyer[_nftID] = _buyer;
     }
 
-    function depositeEarnest(uint256 _nftID) public payable onlyBuyer(_nftID){
-        require(msg.value ==  escrowAmount[_nftID]);
+    function depositeEarnest(uint256 _nftID) public payable {
+         require(msg.sender == buyer[_nftID], "Only buyer can call this function");
+        require(msg.value >=  escrowAmount[_nftID],"the deposite earnest must be greater or equalto than the escrowAmount");
     }
 
     receive() external payable{
@@ -74,10 +75,10 @@ contract Escrow {
     }
 
     function FinalizeSale (uint256 _nftID) public  {
-        require(inspectionStatus[_nftID]);
-        require(approval[_nftID][seller]);
-        require(approval[_nftID][buyer[_nftID]]);
-        require(approval[_nftID][lender]);
+        require(inspectionStatus[_nftID],"must be approved by inspecctor");
+        require(approval[_nftID][seller],"must be approved by seller");
+        require(approval[_nftID][buyer[_nftID]],"must be approved by buyer");
+        require(approval[_nftID][lender],"must be approved by lender");
         require(address(this).balance >= purchasePrice[_nftID], "not sufficient fund");
         // transfer the fund to the seller
        (bool success, ) = payable(seller).call{value : address(this).balance}(" ");

@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 // Components
 import Navigation from "./components/Navigation";
 import Search from "./components/Search";
-import Home from "./components/Home";
+import HomeComponent from "./components/HomeComponent";
 
 // ABIs
 import RealEstate from "./abis/RealEstate.json";
@@ -18,6 +18,8 @@ function App() {
   const [provider, setProvider] = useState(null);
   const [escrow, setEscrow] = useState(null);
   const [homes, setHomes] = useState([]);
+  const [Home, setHome] = useState({});
+  const [toggle, setToggle] = useState(false);
   const loadBlockChainData = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     setProvider(provider);
@@ -50,11 +52,17 @@ function App() {
     setHomes(home);
 
     window.ethereum.on("accountsChanged", async () => {
-      const account = await window.ethereum.request({
+      const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
-      setAccount(account[0]);
+      const account = await ethers.utils.getAddress(accounts[0]);
+      setAccount(account);
     });
+  };
+
+  const toggleHandler = (_home) => {
+    setHome(_home);
+    toggle ? setToggle(false) : setToggle(true);
   };
 
   useEffect(() => {
@@ -68,10 +76,13 @@ function App() {
       <div className="cards__section">
         <h3>Homes For YOU</h3>
         <hr />
-
-        {homes.map((home, index) => (
-          <div className="cards" key={index}>
-            <div className="card">
+        <div className="cards">
+          {homes.map((home, index) => (
+            <div
+              className="card"
+              key={index}
+              onClick={() => toggleHandler(home)}
+            >
               <div className="card__image">
                 <img src={home.image} alt="Home" />
               </div>
@@ -85,9 +96,18 @@ function App() {
                 <p>{home.address}</p>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
+      {toggle && (
+        <HomeComponent
+          home={Home}
+          account={account}
+          escrow={escrow}
+          provider={provider}
+          toggleHandler={toggleHandler}
+        />
+      )}
     </div>
   );
 }
