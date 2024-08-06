@@ -12,7 +12,7 @@ async function main() {
     return ethers.utils.parseUnits(n.toString(), "ether");
   };
   [buyer, seller, inspector, lender] = await ethers.getSigners();
-  console.log(seller, buyer, lender, inspector);
+  // console.log(seller, buyer, lender, inspector);
 
   const RealEstate = await ethers.getContractFactory("RealEstateNFT");
   const realEstate = await RealEstate.deploy();

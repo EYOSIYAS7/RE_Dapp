@@ -45,7 +45,7 @@ contract Escrow {
     }
 
     function ListProperty(uint256 _nftID, uint256 _purchasePrice, uint256 _EscrowAmont, address _buyer) public payable onlyseller(){
-        // transfer the ownership to escrow address
+        // the seller transfer the ownership to escrow address 
         // Erc721 method used
         ierc721.transferFrom(msg.sender, address(this), _nftID);
         isListed[_nftID] = true;

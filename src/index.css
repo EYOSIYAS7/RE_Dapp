@@ -124,7 +124,7 @@ header {
   min-width: 40%;
 
   position: absolute;
-  top: 60%;
+  top: 45%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
@@ -145,7 +145,7 @@ header {
 .cards__section {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 0px;
+  padding: 0 20px;
 }
 
 .cards__section h3 {
@@ -164,6 +164,7 @@ header {
   height: 275px;
 
   border: 1px solid var(--clr-black);
+  border-radius: 5px;
   margin: 10px auto;
 
   cursor: pointer;

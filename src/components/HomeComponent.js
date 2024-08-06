@@ -86,11 +86,12 @@ const HomeComponent = ({ home, account, escrow, provider, toggleHandler }) => {
     await transaction.wait();
 
     const lendAmount =
-      (await escrow.purchasePrice()) - (await escrow.escrowAmount());
+      (await escrow.purchasePrice(home.id)) -
+      (await escrow.escrowAmount(home.id));
     await signer.sendTransaction({
       to: escrow.address,
       value: lendAmount.toString(),
-      gaslimit: 60000,
+      gasLimit: 60000,
     });
 
     setHasLended(true);
