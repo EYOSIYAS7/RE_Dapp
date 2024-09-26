@@ -21,11 +21,13 @@ function App() {
   const [Home, setHome] = useState({});
   const [toggle, setToggle] = useState(false);
   const loadBlockChainData = async () => {
+    // get the metamask provider instance
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     setProvider(provider);
 
     const network = await provider.getNetwork();
     console.log("The network is :", network);
+    // create an instance of the realEstate contract in order to call contract methods from the front end
     const realEstateContract = new ethers.Contract(
       config[network.chainId].realEstate.address,
       RealEstate,
@@ -33,6 +35,7 @@ function App() {
     );
     const totalEstate = await realEstateContract.totalSupply();
     console.log(totalEstate.toString());
+    // create an instance of the Escrow contract in order to call contract methods from the front end
     const EscrowContract = new ethers.Contract(
       config[network.chainId].escrow.address,
       Escrow,
@@ -42,6 +45,7 @@ function App() {
 
     const home = [];
 
+    // get the data of each realEstate to display it in the component
     for (let index = 1; index <= totalEstate; index++) {
       const uri = await realEstateContract.tokenURI(index);
       const response = await fetch(uri);
@@ -50,7 +54,7 @@ function App() {
       console.log("uris: ", uri);
     }
     setHomes(home);
-
+    // checking if the current account is changed
     window.ethereum.on("accountsChanged", async () => {
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
@@ -77,6 +81,7 @@ function App() {
         <h3>Homes For YOU</h3>
         <hr />
         <div className="cards">
+          {/* now we use the data of the homes that we get in this component */}
           {homes.map((home, index) => (
             <div
               className="card"

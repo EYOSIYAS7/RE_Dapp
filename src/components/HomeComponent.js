@@ -16,6 +16,7 @@ const HomeComponent = ({ home, account, escrow, provider, toggleHandler }) => {
   const [owner, setOwner] = useState(null);
 
   const FetchAccounts = async () => {
+    // these are variables in the escrow contract
     const Inspector = await escrow.inspector();
     setInspector(Inspector);
     const HasInspected = await escrow.inspectionStatus(home.id);
@@ -103,7 +104,8 @@ const HomeComponent = ({ home, account, escrow, provider, toggleHandler }) => {
       .connect(signer)
       .updateApprovalSatuts(home.id);
     await transaction.wait();
-
+    // Here before finalizing the sale inside the finalize sale method it will check if it is approved
+    // by the previous stakeholders
     transaction = await escrow.connect(signer).FinalizeSale(home.id);
     await transaction.wait();
     setHasSell(true);

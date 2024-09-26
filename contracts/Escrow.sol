@@ -12,16 +12,17 @@ interface IERC721 {
 contract Escrow {
     IERC721 ierc721;
     address public nftAddress;
-    address payable public seller;
+    address payable public seller; //it's payable because it recives ETH 
     address public lender;
     address public inspector;
-    // because we need to sepcify this property for a specific nft
+    // because we need to sepcify this property for a specific NFT by their id
     mapping (uint256 => bool) public isListed;
     mapping (uint256 => uint256) public purchasePrice;
     mapping (uint256 => uint256) public escrowAmount;
     mapping (uint256 => address) public buyer;
     mapping (uint256 => bool) public inspectionStatus;
     mapping (uint256 => mapping(address => bool)) public approval;
+
     constructor(address _nftAddress, address payable _seller, address _lender, address _inspector){
         nftAddress = _nftAddress;
         seller = _seller;
@@ -43,7 +44,7 @@ contract Escrow {
         require(msg.sender == inspector , "only inspector can call this function");
         _;
     }
-
+    // listing the RealEstate nfts in to the Escrow contract
     function ListProperty(uint256 _nftID, uint256 _purchasePrice, uint256 _EscrowAmont, address _buyer) public payable onlyseller(){
         // the seller transfer the ownership to escrow address 
         // Erc721 method used
